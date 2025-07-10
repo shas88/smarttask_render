@@ -1,19 +1,18 @@
 services:
   - type: web
     name: smarttask
-    env: php
+    env: docker
     plan: free
-    buildCommand: |
-      composer install --no-dev --optimize-autoloader
-      php artisan config:cache
-    startCommand: php artisan serve --host=0.0.0.0 --port=10000
+    dockerfilePath: ./Dockerfile
+    buildFilter:
+      paths: ["Dockerfile", "**/*.php", "composer.*"]
     envVars:
+      - key: APP_KEY
+        value: base64:lEwYs5KjSrph6Muuhace0RM/tN4VgCl97DtCNDIUoBY=
       - key: APP_ENV
         value: production
       - key: APP_DEBUG
         value: false
-      - key: APP_KEY
-        value: base64:lEwYs5KjSrph6Muuhace0RM/tN4VgCl97DtCNDIUoBY=
       - key: DB_CONNECTION
         value: sqlite
       - key: DB_DATABASE
