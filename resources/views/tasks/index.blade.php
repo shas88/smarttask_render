@@ -1,36 +1,61 @@
-@extends('layouts.base')
+@extends('layouts.app')
 
 @section('content')
-    <div class="bg-white p-6 rounded shadow">
-        <div class="flex justify-between items-center mb-4">
-            <h2 class="text-xl font-semibold text-gray-800">📝 My Tasks</h2>
-            <a href="{{ route('tasks.create') }}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-                ➕ New Task
+<div class="py-10">
+    <div class="max-w-5xl mx-auto sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-gray-800">📋 My Tasks</h1>
+            <a href="{{ route('tasks.create') }}"
+               class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                ➕ Add Task
             </a>
         </div>
 
-        @if(session('success'))
-            <div class="text-green-600 mb-4">{{ session('success') }}</div>
+        @if ($tasks->count())
+            <div class="bg-white rounded-xl shadow divide-y">
+                @foreach ($tasks as $task)
+                    <div class="p-5 sm:flex sm:justify-between sm:items-center">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">{{ $task->title }}</h3>
+                            <p class="text-gray-600 text-sm mb-1">{{ $task->description }}</p>
+                           <tr>
+    <td>{{ $task->title }}</td>
+    <td>{{ $task->due_date ? \Carbon\Carbon::parse($task->due_date)->format('M d, Y') : '-' }}</td>
+    <td>
+        @if ($task->is_completed)
+            <span class="text-green-600 font-bold">✔ Completed</span>
+        @else
+            <span class="text-red-600 font-semibold">⏳ Pending</span>
         @endif
+    </td>
+</tr>
+                            @if($task->due_date)
+                                <p class="text-xs text-gray-400">📅 Due: {{ \Carbon\Carbon::parse($task->due_date)->format('M d, Y') }}</p>
+                            @endif
+                        </div>
+                        <div class="mt-3 sm:mt-0 flex gap-2">
+                            <a href="/tasks/{{ $task->id }}/edit"
+                               class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-sm">Edit</a>
 
-        @forelse($tasks as $task)
-            <div class="border border-gray-200 rounded p-4 mb-4 shadow-sm bg-gray-50">
-                <h3 class="text-lg font-bold text-gray-900">{{ $task->title }}</h3>
-                <p class="text-gray-700">{{ $task->description }}</p>
-                <div class="mt-3 space-x-3">
-                    <a href="{{ route('tasks.edit', $task) }}" class="text-blue-600 hover:underline">✏️ Edit</a>
+                           <form action="/tasks/{{ $task->id }}" method="POST"
+      onsubmit="return confirm('Delete this task?');">
+    @csrf
+    @method('DELETE')
+    <button type="submit"
+            class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm">
+        🗑️ Delete
+    </button>
+</form>
 
-                    <form action="{{ route('tasks.destroy', $task) }}" method="POST" class="inline-block">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="text-red-600 hover:underline" onclick="return confirm('Are you sure?')">
-                            🗑️ Delete
-                        </button>
-                    </form>
-                </div>
+                        </div>
+                    </div>
+                @endforeach
             </div>
-        @empty
-            <p class="text-gray-500">You have no tasks yet.</p>
-        @endforelse
+        @else
+            <div class="bg-white p-6 rounded-lg shadow text-center text-gray-600">
+                😞 No tasks found. Try adding one.
+            </div>
+        @endif
     </div>
+</div>
 @endsection

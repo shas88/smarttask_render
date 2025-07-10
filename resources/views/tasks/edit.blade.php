@@ -1,49 +1,53 @@
-@extends('layouts.base')
+@extends('layouts.app')
 
 @section('content')
-    <div class="bg-white p-6 rounded shadow">
-        <h2 class="text-xl font-semibold text-gray-800 mb-6">👤 Edit Profile</h2>
+<div class="max-w-xl mx-auto py-10">
+    <h2 class="text-2xl font-bold mb-6 text-gray-800">✏️ Edit Task</h2>
 
-        {{-- Update Profile Form --}}
-        <form method="POST" action="{{ route('profile.update') }}" class="space-y-6">
-            @csrf
-            @method('PATCH')
+    <form method="POST" action="{{ route('tasks.update', $task->id) }}">
+        @csrf
+        @method('PUT')
 
-            <div>
-                <label for="name" class="block font-medium text-gray-700 mb-1">Name</label>
-                <input id="name" name="name" type="text" value="{{ old('name', auth()->user()->name) }}" required
-                       class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-            </div>
+        <!-- Title -->
+        <div class="mb-4">
+            <label for="title" class="block text-sm font-medium text-gray-700">Title</label>
+            <input type="text" name="title" id="title" value="{{ old('title', $task->title) }}"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500" required>
+        </div>
 
-            <div>
-                <label for="email" class="block font-medium text-gray-700 mb-1">Email</label>
-                <input id="email" name="email" type="email" value="{{ old('email', auth()->user()->email) }}" required
-                       class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-            </div>
+        <!-- Description -->
+        <div class="mb-4">
+            <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+            <textarea name="description" id="description"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                rows="3">{{ old('description', $task->description) }}</textarea>
+        </div>
 
-            <div class="flex items-center justify-between">
-                <button type="submit"
-                        class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-                    💾 Save Changes
-                </button>
+        <!-- Due Date -->
+        <div class="mb-4">
+            <label for="due_date" class="block text-sm font-medium text-gray-700">Due Date</label>
+            <input type="date" name="due_date" id="due_date" value="{{ old('due_date', $task->due_date) }}"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+        </div>
 
-                @if (session('status') === 'profile-updated')
-                    <p class="text-green-600 ml-4">✅ Profile updated!</p>
-                @endif
-            </div>
-        </form>
 
-        {{-- Delete Account --}}
-        <hr class="my-8">
 
-        <form method="POST" action="{{ route('profile.destroy') }}"
-              onsubmit="return confirm('Are you sure you want to delete your account?');">
-            @csrf
-            @method('DELETE')
+<!-- Completed Checkbox -->
+<div class="mb-4">
+    <label>
+        <input type="checkbox" name="is_completed" {{ old('is_completed', $task->is_completed ?? false) ? 'checked' : '' }}>
+        Mark as Completed
+    </label>
+</div>
 
-            <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
-                ❌ Delete Account
+
+        <!-- Submit -->
+        <div>
+            <button type="submit"
+                class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md">
+                ✅ Update Task
             </button>
-        </form>
-    </div>
+        </div>
+    </form>
+</div>
 @endsection

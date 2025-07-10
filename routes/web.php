@@ -1,24 +1,38 @@
 <?php
-
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\ProfileController;
+use App\Models\Task;
 
-// ✅ FIXED: Only one / route
+
+
+Route::get('/tasks-test', [TaskController::class, 'index']);
+
+Route::get('/', function () {
+    return redirect()->route('tasks.index');
+});
+
+Route::get('/', function () {
+    return Auth::check()
+        ? redirect()->route('tasks.index')
+        : redirect('/login');
+});
+// ✅ Redirect / to dashboard
 Route::get('/', function () {
     return redirect('/dashboard');
 });
 
-// ✅ All routes protected by auth
+// ✅ Authenticated routes
 Route::middleware(['auth'])->group(function () {
 
     // Dashboard
     Route::get('/dashboard', function () {
-    return view('dashboard'); // Now it's just pure HTML
-})->middleware(['auth'])->name('dashboard');
+        $tasks = Task::where('user_id', auth()->id())->latest()->get();
+        return view('dashboard', compact('tasks'));
+    })->name('dashboard');
 
-
-    // Tasks
+    // ✅ Tasks via controller (only once!)
     Route::get('/tasks', [TaskController::class, 'index'])->name('tasks.index');
     Route::get('/tasks/create', [TaskController::class, 'create'])->name('tasks.create');
     Route::post('/tasks', [TaskController::class, 'store'])->name('tasks.store');
@@ -26,10 +40,26 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/tasks/{task}', [TaskController::class, 'update'])->name('tasks.update');
     Route::delete('/tasks/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
 
+
+
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/dashboard', [TaskController::class, 'index'])->name('dashboard');
+
+    Route::get('/tasks/create', [TaskController::class, 'create'])->name('tasks.create');
+    Route::post('/tasks', [TaskController::class, 'store'])->name('tasks.store');
+
+    Route::get('/tasks/{task}/edit', [TaskController::class, 'edit'])->name('tasks.edit');
+    Route::put('/tasks/{task}', [TaskController::class, 'update'])->name('tasks.update');
+
+    Route::delete('/tasks/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
+});
+
     // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+// Breeze/Auth routes
 require __DIR__.'/auth.php';
