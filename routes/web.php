@@ -5,7 +5,7 @@ use App\Http\Controllers\TaskController;
 use App\Http\Controllers\ProfileController;
 use App\Models\Task;
 
-
+Route::get('/check', fn() => 'Laravel is alive ✅');
 
 Route::get('/tasks-test', [TaskController::class, 'index']);
 
